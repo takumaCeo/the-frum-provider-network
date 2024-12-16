@@ -1,5 +1,5 @@
-const BASE_ID = "appbPGcBMTauJAj18";
 const AIRTABLE_API_KEY = Netlify.env.get("AIRTABLE_API_KEY") || "";
+const BASE_ID = Netlify.env.get("AIRTABLE_BASE_ID") || "";
 
 function tableResponseToObject(tableData) {
   return tableData.records.reduce(
