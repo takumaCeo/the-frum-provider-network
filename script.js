@@ -1,24 +1,15 @@
-const apiKey = 'patDBledtf4iQUEbj.ef4900285c1a43d887107bef1d9aae629c2aeead41eabe6a58561b9a879e0436';
-const baseId = 'appbPGcBMTauJAj18';
-const providersTable = 'Providers';
-const categoriesTable = 'Categories';
-
 const categoriesDiv = document.querySelector('.categories');
 const providersTableBody = document.getElementById('providers-table');
 
-// Fetch data from Airtable
-async function fetchAirtableData(table, view = 'Grid view') {
-  const url = `https://api.airtable.com/v0/${baseId}/${table}?view=${view}`;
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${apiKey}` }
-  });
+// Fetch providers from Netlify serverless function
+async function fetchProviders() {
+  const response = await fetch('/.netlify/functions/fetchProviders');
   const data = await response.json();
-  return data.records;
+  return data.records; // Airtable records
 }
 
 // Render categories
-async function renderCategories() {
-  const providers = await fetchAirtableData(providersTable);
+async function renderCategories(providers) {
   const categoryCounts = {};
 
   // Count providers per category
@@ -40,15 +31,13 @@ async function renderCategories() {
     const div = document.createElement('div');
     div.textContent = `${category} (${count})`;
     div.classList.add('category');
-    div.onclick = () => renderProviders(category);
+    div.onclick = () => renderProviders(providers, category);
     categoriesDiv.appendChild(div);
   });
 }
 
 // Render providers
-async function renderProviders(filterCategory = null) {
-  const providers = await fetchAirtableData(providersTable);
-
+function renderProviders(providers, filterCategory = null) {
   // Filter providers by category if specified
   const filteredProviders = filterCategory
     ? providers.filter((record) =>
@@ -78,8 +67,9 @@ async function renderProviders(filterCategory = null) {
 
 // Initialize the page
 async function init() {
-  await renderCategories();
-  await renderProviders();
+  const providers = await fetchProviders(); // Fetch providers from the serverless function
+  renderCategories(providers); // Render categories
+  renderProviders(providers); // Render all providers initially
 }
 
 init();
